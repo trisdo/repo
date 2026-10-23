@@ -5,7 +5,7 @@
             "id": "nguonc",
             "name": "Nguồn C",
             "version": "1.29",
-            "scriptUrl": "https://raw.githubusercontent.com/trisdo/Repo-VAX/refs/heads/main/nguonc_plugin.js?token=GHSAT0AAAAAAEMEFX774EXKOQ5FSAECOOMY2W3CU4A",
+            "scriptUrl": "https://raw.githubusercontent.com/trisdo/Repo-VAX/refs/heads/main/nguonc_plugin.js",
             "iconUrl": "https://raw.githubusercontent.com/youngbi/repo/main/plugins/nguonC.png",
             "info": "Phim hay, xem mượt. Nếu nguồn không vào được hãy thử truy cập bằng nút đăng nhập ở kho plugin để xem họ đổi domain gì và bạn tự đổi lại trên app và báo cho tác giả biết."
         },
@@ -13,28 +13,28 @@
             "id": "kkphim",
             "Tên": "KKPhim",
             "phiên bản": "1.0.2",
-            "scriptUrl": "https://raw.githubusercontent.com/trisdo/Repo-VAX/refs/heads/main/kkphim_plugin.js?token=GHSAT0AAAAAAEMEFX77VDPNTJZTDOEHGRHG2W3CWFQ",
+            "scriptUrl": "https://raw.githubusercontent.com/trisdo/Repo-VAX/refs/heads/main/kkphim_plugin.js",
             "iconUrl": "https://raw.githubusercontent.com/youngbi/repo/main/plugins/kkphim.png"
         },
       {
             "id": "phimhdcs",
             "tên": "PhimHDCSS",
             "phiên bản": "1.1.7",
-            "scriptUrl": "https://raw.githubusercontent.com/trisdo/Repo-VAX/refs/heads/main/phimhdcs_plugin.js?token=GHSAT0AAAAAAEMEFX77PHFR7J6SNKDFZDS42W3CXHA",
+            "scriptUrl": "https://raw.githubusercontent.com/trisdo/Repo-VAX/refs/heads/main/phimhdcs_plugin.js",
             "iconUrl": "https://phimhdcss.com/favicon.ico"
         },
       {
             "id": "vsmov",
             "tên": "VSMOV",
             "phiên bản": "1.0.0",
-            "scriptUrl": "https://raw.githubusercontent.com/trisdo/Repo-VAX/refs/heads/main/vsmov_plugin.js?token=GHSAT0AAAAAAEMEFX77BSQG7CPGIBJ2V2WC2W3CYLA",
+            "scriptUrl": "https://raw.githubusercontent.com/trisdo/Repo-VAX/refs/heads/main/vsmov_plugin.js",
             "iconUrl": "https://vsmov.com/VSmov.png"
         },
       {
             "id": "bilutv",
             "tên": "Nguồn Bilutv",
             "phiên bản": "1.5.1",
-            "scriptUrl": "https://raw.githubusercontent.com/trisdo/Repo-VAX/refs/heads/main/bilutv_plugin.js?token=GHSAT0AAAAAAEMEFX76XYUEQVSKOJ4T6WZW2W3C2BQ",
+            "scriptUrl": "https://raw.githubusercontent.com/trisdo/Repo-VAX/refs/heads/main/bilutv_plugin.js",
             "iconUrl": "https://bilutv.asia/img/bilutvlogo-ngang.jpg"
         },
  ]
