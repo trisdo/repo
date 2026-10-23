@@ -1,7 +1,7 @@
 // =============================================================================
-// NGUONC PLUGIN v2.0 - TỐI ƯU CHO OKMATERIALTV
+// NGUONC PLUGIN v2.0 - TỐI ƯU CHO OKMATERIALTV (CUSTOM DOMAIN)
 // =============================================================================
-// Nguồn: https://phim.nguonc.com
+// Nguồn: https://nguonc.taisaovayem.com
 // =============================================================================
 
 // =============================================================================
@@ -12,8 +12,8 @@ function getManifest() {
     return JSON.stringify({
         "id": "nguonc",
         "name": "Phim NguonC",
-        "version": "2.0.0",
-        "baseUrl": "https://phim.nguonc.com",
+        "version": "2.0.1",
+        "baseUrl": "https://nguonc.taisaovayem.com",
         "iconUrl": "https://raw.githubusercontent.com/youngbi/repo/main/plugins/nguonC.png",
         "isEnabled": true,
         "type": "MOVIE",
@@ -54,10 +54,10 @@ function getFilterConfig() {
 }
 
 // =============================================================================
-// URL GENERATION
+// URL GENERATION (DÙNG DOMAIN MỚI)
 // =============================================================================
 
-var BASE_API = "https://phim.nguonc.com/api";
+var BASE_API = "https://nguonc.taisaovayem.com/api";
 
 var LIST_SLUGS = ['phim-le', 'phim-bo', 'phim-dang-chieu', 'tv-shows', 'subteam'];
 var COUNTRY_SLUGS = [
@@ -149,128 +149,3 @@ function parseListResponse(apiResponseJson) {
         var totalItems = paginate.total_items || paginate.totalItems || 0;
         var itemsPerPage = paginate.items_per_page || paginate.itemsPerPage || paginate.totalItemsPerPage || 24;
         var totalPages = paginate.total_page || paginate.totalPages || 0;
-        if (totalPages === 0 && itemsPerPage > 0) totalPages = Math.ceil(totalItems / itemsPerPage);
-        if (totalPages === 0) totalPages = 1;
-
-        return JSON.stringify({
-            items: movies,
-            pagination: {
-                currentPage: currentPage,
-                totalPages: totalPages,
-                totalItems: totalItems,
-                itemsPerPage: itemsPerPage
-            }
-        });
-    } catch (error) {
-        return JSON.stringify({ items: [], pagination: { currentPage: 1, totalPages: 1, totalItems: 0, itemsPerPage: 24 } });
-    }
-}
-
-function parseSearchResponse(apiResponseJson) {
-    return parseListResponse(apiResponseJson);
-}
-
-function extractGroup(categoryObj, groupName) {
-    if (!categoryObj) return "";
-    for (var key in categoryObj) {
-        if (categoryObj.hasOwnProperty(key)) {
-            var group = categoryObj[key];
-            if (group && group.group && group.group.name === groupName && group.list && group.list.length > 0) {
-                return group.list.map(function (item) { return item.name; }).join(", ");
-            }
-        }
-    }
-    return "";
-}
-
-function parseMovieDetail(apiResponseJson) {
-    try {
-        var response = JSON.parse(apiResponseJson);
-        var movie = response.movie || (response.data && response.data.item) || response.data || {};
-        var rawEpisodes = movie.episodes || response.episodes || (response.data && response.data.item && response.data.item.episodes) || [];
-
-        var servers = [];
-        if (Array.isArray(rawEpisodes)) {
-            rawEpisodes.forEach(function (server) {
-                var episodes = [];
-                var serverItems = server.items || server.server_data || [];
-                if (Array.isArray(serverItems)) {
-                    serverItems.forEach(function (ep) {
-                        // Ưu tiên lấy m3u8, nếu không có lấy embed
-                        var link = ep.m3u8 || ep.link_m3u8 || ep.embed || ep.link_embed || "";
-                        if (link) {
-                            episodes.push({
-                                id: link,
-                                name: ep.name || ep.episode_name || "",
-                                slug: ep.slug || ep.episode_slug || ""
-                            });
-                        }
-                    });
-                }
-                if (episodes.length > 0) {
-                    servers.push({ 
-                        name: server.server_name || server.name || "Server Vip", 
-                        episodes: episodes 
-                    });
-                }
-            });
-        }
-
-        var extractedYear = extractGroup(movie.category, "Năm");
-        var categories = extractGroup(movie.category, "Thể loại");
-        var countries = extractGroup(movie.category, "Quốc gia");
-
-        if (!categories && movie.category && Array.isArray(movie.category))
-            categories = movie.category.map(function (c) { return c.name || ""; }).join(", ");
-        if (!countries && movie.country && Array.isArray(movie.country))
-            countries = movie.country.map(function (c) { return c.name || ""; }).join(", ");
-
-        return JSON.stringify({
-            id: movie.slug || "",
-            title: movie.name || "",
-            originName: movie.origin_name || "",
-            posterUrl: getImageUrl(movie.thumb_url),
-            backdropUrl: getImageUrl(movie.poster_url),
-            description: (movie.description || movie.content || "").replace(/<[^>]*>/g, ""),
-            year: parseInt(movie.year || extractedYear) || 0,
-            rating: parseFloat(movie.view) || 0,
-            quality: movie.quality || "",
-            duration: movie.time || "",
-            servers: servers,
-            episode_current: movie.current_episode || movie.episode_current || "",
-            episode_total: movie.episode_total || "",
-            lang: movie.language || movie.lang || "",
-            category: categories,
-            country: countries,
-            director: movie.director || "",
-            casts: movie.casts || movie.actor || "",
-            view: parseInt(movie.view) || 0,
-            status: movie.status || ""
-        });
-    } catch (error) {
-        return JSON.stringify({ servers: [] });
-    }
-}
-
-function parseDetailResponse(input) {
-    try {
-        var videoUrl = "";
-
-        // Trường hợp 1: Chuỗi truyền vào trực tiếp là link m3u8 hoặc HTTP embed
-        if (typeof input === "string" && (input.indexOf("http://") === 0 || input.indexOf("https://") === 0)) {
-            var m3u8Match = input.match(/https?:\/\/[^\s"'<>]+\.m3u8[^\s"'<>]*/i);
-            videoUrl = m3u8Match ? m3u8Match[0] : input;
-        } 
-        // Trường hợp 2: Trả về nội dung HTML/JSON chứa luồng m3u8
-        else if (typeof input === "string") {
-            var m3u8Regex = /file:\s*["']([^"']+\.m3u8[^"']*)["']|source:\s*["']([^"']+\.m3u8[^"']*)["']|src:\s*["']([^"']+\.m3u8[^"']*)["']|["']([^"']+\.m3u8[^"']*)["']/;
-            var match = input.match(m3u8Regex);
-            videoUrl = match ? (match[1] || match[2] || match[3] || match[4] || "") : "";
-        }
-
-        if (videoUrl) {
-            return JSON.stringify({
-                url: videoUrl,
-                headers: {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                    "
