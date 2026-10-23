@@ -7,8 +7,6 @@
             "version": "1.29",
             "scriptUrl": "https://raw.githubusercontent.com/trisdo/repo/refs/heads/main/nguonc_plugin.js",
             "iconUrl": "https://raw.githubusercontent.com/youngbi/repo/main/plugins/nguonC.png",
-            "info": "Phim hay, xem mượt. Nếu nguồn không vào được hãy thử truy cập bằng nút đăng nhập ở kho plugin để xem họ đổi domain gì và bạn tự đổi lại trên app và báo cho tác giả biết."
-        },
       {
             "id": "kkphim",
             "Tên": "KKPhim",
