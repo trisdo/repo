@@ -3,31 +3,31 @@
     "plugins": [
         {
             "id": "nguonc",
-            "name": "Phim NguonC",
-            "version": "2.0.0",
+            "name": "Nguồn C",
+            "version": "1.29",
             "scriptUrl": "https://raw.githubusercontent.com/trisdo/repo/refs/heads/main/nguonc_plugin.js",
-            "iconUrl": "https://raw.githubusercontent.com/youngbi/repo/main/plugins/nguonC.png",
-      {
+            "iconUrl": "https://raw.githubusercontent.com/youngbi/repo/main/plugins/nguonC.png"
+        },
+        {
             "id": "kkphim",
-            "Tên": "KKPhim",
-            "phiên bản": "1.0.2",
+            "name": "KKPhim",
+            "version": "1.0.2",
             "scriptUrl": "https://raw.githubusercontent.com/trisdo/repo/refs/heads/main/kkphim_plugin.js",
             "iconUrl": "https://raw.githubusercontent.com/youngbi/repo/main/plugins/kkphim.png"
         },
-      {
+        {
             "id": "phimhdcs",
-            "tên": "PhimHDCS",
-            "phiên bản": "1.1.7",
+            "name": "PhimHDCS",
+            "version": "1.1.7",
             "scriptUrl": "https://raw.githubusercontent.com/trisdo/repo/refs/heads/main/phimhdcs_plugin.js",
             "iconUrl": "https://phimhdcss.com/favicon.ico"
         },
-      {
+        {
             "id": "vsmov",
-            "tên": "VSMOV",
-            "phiên bản": "1.0.0",
+            "name": "VSMOV",
+            "version": "1.0.0",
             "scriptUrl": "https://raw.githubusercontent.com/trisdo/repo/refs/heads/main/vsmov_plugin.js",
             "iconUrl": "https://vsmov.com/VSmov.png"
-        },
-      
- ]
-}          
+        }
+    ]
+}
