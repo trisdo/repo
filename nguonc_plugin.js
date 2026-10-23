@@ -1,10 +1,7 @@
-//
 // =============================================================================
-// NGUONC PLUGIN v2.0 - TỐI ƯU
+// NGUONC PLUGIN v2.0 - TỐI ƯU CHO OKMATERIALTV
 // =============================================================================
 // Nguồn: https://phim.nguonc.com
-// Tối ưu cho OKMaterialTV / SmartTube
-// Thay đổi: Fix extractGroup() parsing category/country, hardcoded fallback data
 // =============================================================================
 
 // =============================================================================
@@ -57,7 +54,7 @@ function getFilterConfig() {
 }
 
 // =============================================================================
-// URL GENERATION - TỐI ƯU
+// URL GENERATION
 // =============================================================================
 
 var BASE_API = "https://phim.nguonc.com/api";
@@ -75,31 +72,17 @@ function getUrlList(slug, filtersJson) {
         var page = filters.page || 1;
         var sort = filters.sort || "modified.time";
 
-        // TRANG CHỦ: dùng API phim-moi-cap-nhat làm nội dung mặc định
-        if (slug === 'home') {
+        if (slug === 'home' || (slug === 'phim-moi-cap-nhat' && !filters.category && !filters.country && !filters.year)) {
             return BASE_API + "/films/phim-moi-cap-nhat?page=" + page;
         }
 
-        // Phim Mới Cập Nhật (không filter)
-        if (slug === 'phim-moi-cap-nhat' && !filters.category && !filters.country && !filters.year) {
-            return BASE_API + "/films/phim-moi-cap-nhat?page=" + page;
-        }
+        if (filters.category) return BASE_API + "/films/the-loai/" + filters.category + "?page=" + page + "&sort=" + sort;
+        if (filters.country) return BASE_API + "/films/quoc-gia/" + filters.country + "?page=" + page + "&sort=" + sort;
+        if (filters.year) return BASE_API + "/films/nam-phat-hanh/" + filters.year + "?page=" + page + "&sort=" + sort;
 
-        // Filter ưu tiên
-        if (filters.category)
-            return BASE_API + "/films/the-loai/" + filters.category + "?page=" + page + "&sort=" + sort;
-        if (filters.country)
-            return BASE_API + "/films/quoc-gia/" + filters.country + "?page=" + page + "&sort=" + sort;
-        if (filters.year)
-            return BASE_API + "/films/nam-phat-hanh/" + filters.year + "?page=" + page + "&sort=" + sort;
-
-        // Slug-based
-        if (/^\d{4}$/.test(slug))
-            return BASE_API + "/films/nam-phat-hanh/" + slug + "?page=" + page + "&sort=" + sort;
-        if (LIST_SLUGS.indexOf(slug) >= 0)
-            return BASE_API + "/films/danh-sach/" + slug + "?page=" + page + "&sort=" + sort;
-        if (COUNTRY_SLUGS.indexOf(slug) >= 0)
-            return BASE_API + "/films/quoc-gia/" + slug + "?page=" + page + "&sort=" + sort;
+        if (/^\d{4}$/.test(slug)) return BASE_API + "/films/nam-phat-hanh/" + slug + "?page=" + page + "&sort=" + sort;
+        if (LIST_SLUGS.indexOf(slug) >= 0) return BASE_API + "/films/danh-sach/" + slug + "?page=" + page + "&sort=" + sort;
+        if (COUNTRY_SLUGS.indexOf(slug) >= 0) return BASE_API + "/films/quoc-gia/" + slug + "?page=" + page + "&sort=" + sort;
 
         return BASE_API + "/films/the-loai/" + slug + "?page=" + page + "&sort=" + sort;
     } catch (e) {
@@ -127,13 +110,14 @@ function getUrlCountries() { return BASE_API + "/quoc-gia"; }
 function getUrlYears() { return BASE_API + "/nam-phat-hanh"; }
 
 function getUrlEpisodePlayer(urlOrSlug) {
-    if (urlOrSlug && (urlOrSlug.indexOf("http") === 0 || urlOrSlug.indexOf("https") === 0))
+    if (urlOrSlug && (urlOrSlug.indexOf("http") === 0 || urlOrSlug.indexOf("https") === 0)) {
         return urlOrSlug;
+    }
     return BASE_API + "/film/" + urlOrSlug;
 }
 
 // =============================================================================
-// PARSERS - TỐI ƯU
+// PARSERS
 // =============================================================================
 
 function parseListResponse(apiResponseJson) {
@@ -186,10 +170,6 @@ function parseSearchResponse(apiResponseJson) {
     return parseListResponse(apiResponseJson);
 }
 
-/**
- * FIX: Giải nén category/country từ cấu trúc group đặc biệt của NguonC.
- * Cấu trúc: { "1": { group: { name: "Thể loại" }, list: [...] }, "2": { group: { name: "Quốc gia" }, list: [...] } }
- */
 function extractGroup(categoryObj, groupName) {
     if (!categoryObj) return "";
     for (var key in categoryObj) {
@@ -206,8 +186,8 @@ function extractGroup(categoryObj, groupName) {
 function parseMovieDetail(apiResponseJson) {
     try {
         var response = JSON.parse(apiResponseJson);
-        var movie = response.movie || response.data?.item || response.data || {};
-        var rawEpisodes = movie.episodes || response.episodes || response.data?.item?.episodes || [];
+        var movie = response.movie || (response.data && response.data.item) || response.data || {};
+        var rawEpisodes = movie.episodes || response.episodes || (response.data && response.data.item && response.data.item.episodes) || [];
 
         var servers = [];
         if (Array.isArray(rawEpisodes)) {
@@ -216,9 +196,8 @@ function parseMovieDetail(apiResponseJson) {
                 var serverItems = server.items || server.server_data || [];
                 if (Array.isArray(serverItems)) {
                     serverItems.forEach(function (ep) {
-                        var embed = ep.embed || ep.link_embed || "";
-                        var m3u8 = ep.m3u8 || ep.link_m3u8 || "";
-                        var link = embed || m3u8;
+                        // Ưu tiên lấy m3u8, nếu không có lấy embed
+                        var link = ep.m3u8 || ep.link_m3u8 || ep.embed || ep.link_embed || "";
                         if (link) {
                             episodes.push({
                                 id: link,
@@ -229,17 +208,18 @@ function parseMovieDetail(apiResponseJson) {
                     });
                 }
                 if (episodes.length > 0) {
-                    servers.push({ name: server.server_name || server.name || "Server", episodes: episodes });
+                    servers.push({ 
+                        name: server.server_name || server.name || "Server Vip", 
+                        episodes: episodes 
+                    });
                 }
             });
         }
 
-        // FIX: Giải nén từ cấu trúc group đặc biệt
         var extractedYear = extractGroup(movie.category, "Năm");
         var categories = extractGroup(movie.category, "Thể loại");
         var countries = extractGroup(movie.category, "Quốc gia");
 
-        // Fallback: nếu không tìm thấy trong group, thử field trực tiếp
         if (!categories && movie.category && Array.isArray(movie.category))
             categories = movie.category.map(function (c) { return c.name || ""; }).join(", ");
         if (!countries && movie.country && Array.isArray(movie.country))
@@ -268,106 +248,29 @@ function parseMovieDetail(apiResponseJson) {
             status: movie.status || ""
         });
     } catch (error) {
-        return "null";
+        return JSON.stringify({ servers: [] });
     }
 }
 
-function parseDetailResponse(html) {
+function parseDetailResponse(input) {
     try {
-        var m3u8Regex = /file:\s*["']([^"']+\.m3u8[^"']*)["']|source:\s*["']([^"']+\.m3u8[^"']*)["']|src:\s*["']([^"']+\.m3u8[^"']*)["']|["']([^"']+\.m3u8[^"']*)["']/;
-        var match = html.match(m3u8Regex);
-        var m3u8 = match ? (match[1] || match[2] || match[3] || match[4] || "") : "";
+        var videoUrl = "";
 
-        if (m3u8) {
+        // Trường hợp 1: Chuỗi truyền vào trực tiếp là link m3u8 hoặc HTTP embed
+        if (typeof input === "string" && (input.indexOf("http://") === 0 || input.indexOf("https://") === 0)) {
+            var m3u8Match = input.match(/https?:\/\/[^\s"'<>]+\.m3u8[^\s"'<>]*/i);
+            videoUrl = m3u8Match ? m3u8Match[0] : input;
+        } 
+        // Trường hợp 2: Trả về nội dung HTML/JSON chứa luồng m3u8
+        else if (typeof input === "string") {
+            var m3u8Regex = /file:\s*["']([^"']+\.m3u8[^"']*)["']|source:\s*["']([^"']+\.m3u8[^"']*)["']|src:\s*["']([^"']+\.m3u8[^"']*)["']|["']([^"']+\.m3u8[^"']*)["']/;
+            var match = input.match(m3u8Regex);
+            videoUrl = match ? (match[1] || match[2] || match[3] || match[4] || "") : "";
+        }
+
+        if (videoUrl) {
             return JSON.stringify({
-                url: m3u8,
+                url: videoUrl,
                 headers: {
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                    "Referer": "https://embed.streamc.xyz/"
-                },
-                subtitles: []
-            });
-        }
-        return "{}";
-    } catch (error) {
-        return "{}";
-    }
-}
-
-/**
- * FIX: NguonC không có API categories động, trả về hardcoded.
- */
-function parseCategoriesResponse(apiResponseJson) {
-    var genres = [
-        { name: "Hành Động", slug: "hanh-dong" },
-        { name: "Phiêu Lưu", slug: "phieu-luu" },
-        { name: "Hoạt Hình", slug: "hoat-hinh" },
-        { name: "Hài", slug: "phim-hai" },
-        { name: "Hình Sự", slug: "hinh-su" },
-        { name: "Tài Liệu", slug: "tai-lieu" },
-        { name: "Chính Kịch", slug: "chinh-kich" },
-        { name: "Gia Đình", slug: "gia-dinh" },
-        { name: "Giả Tưởng", slug: "gia-tuong" },
-        { name: "Lịch Sử", slug: "lich-su" },
-        { name: "Kinh Dị", slug: "kinh-di" },
-        { name: "Nhạc", slug: "phim-nhac" },
-        { name: "Bí Ẩn", slug: "bi-an" },
-        { name: "Lãng Mạn", slug: "lang-man" },
-        { name: "Khoa Học Viễn Tưởng", slug: "khoa-hoc-vien-tuong" },
-        { name: "Gây Cấn", slug: "gay-can" },
-        { name: "Chiến Tranh", slug: "chien-tranh" },
-        { name: "Tâm Lý", slug: "tam-ly" },
-        { name: "Tình Cảm", slug: "tinh-cam" },
-        { name: "Cổ Trang", slug: "co-trang" },
-        { name: "Miền Tây", slug: "mien-tay" },
-        { name: "Phim 18+", slug: "phim-18" }
-    ];
-    return JSON.stringify(genres);
-}
-
-/**
- * FIX: NguonC không có API countries động, trả về hardcoded.
- */
-function parseCountriesResponse(apiResponseJson) {
-    var countries = [
-        { name: "Âu Mỹ", value: "au-my" },
-        { name: "Anh", value: "anh" },
-        { name: "Trung Quốc", value: "trung-quoc" },
-        { name: "Indonesia", value: "indonesia" },
-        { name: "Việt Nam", value: "viet-nam" },
-        { name: "Pháp", value: "phap" },
-        { name: "Hồng Kông", value: "hong-kong" },
-        { name: "Hàn Quốc", value: "han-quoc" },
-        { name: "Nhật Bản", value: "nhat-ban" },
-        { name: "Thái Lan", value: "thai-lan" },
-        { name: "Đài Loan", value: "dai-loan" },
-        { name: "Nga", value: "nga" },
-        { name: "Hà Lan", value: "ha-lan" },
-        { name: "Philippines", value: "philippines" },
-        { name: "Ấn Độ", value: "an-do" },
-        { name: "Quốc gia khác", value: "quoc-gia-khac" }
-    ];
-    return JSON.stringify(countries);
-}
-
-/**
- * FIX: NguonC không có API years động, trả về hardcoded.
- */
-function parseYearsResponse(apiResponseJson) {
-    var currentYear = new Date().getFullYear();
-    var years = [];
-    for (var y = currentYear; y >= 2004; y--) {
-        years.push({ name: String(y), value: String(y) });
-    }
-    return JSON.stringify(years);
-}
-
-// =============================================================================
-// HELPERS
-// =============================================================================
-
-function getImageUrl(path) {
-    if (!path) return "";
-    if (path.indexOf("http") === 0 || path.indexOf("https") === 0) return path;
-    return "https://img.phimapi.com/" + path;
-}
+                    "
