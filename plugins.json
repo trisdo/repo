@@ -13,28 +13,28 @@
             "id": "kkphim",
             "Tên": "KKPhim",
             "phiên bản": "1.0.2",
-            "scriptUrl": "https://raw.githubusercontent.com/trisdo/Repo-VAX/refs/heads/main/kkphim_plugin.js",
+            "scriptUrl": "https://raw.githubusercontent.com/trisdo/repo/refs/heads/main/kkphim_plugin.js",
             "iconUrl": "https://raw.githubusercontent.com/youngbi/repo/main/plugins/kkphim.png"
         },
       {
             "id": "phimhdcs",
             "tên": "PhimHDCSS",
             "phiên bản": "1.1.7",
-            "scriptUrl": "https://raw.githubusercontent.com/trisdo/Repo-VAX/refs/heads/main/phimhdcs_plugin.js",
+            "scriptUrl": https://raw.githubusercontent.com/trisdo/repo/refs/heads/main/phimhdcs_plugin.js",
             "iconUrl": "https://phimhdcss.com/favicon.ico"
         },
       {
             "id": "vsmov",
             "tên": "VSMOV",
             "phiên bản": "1.0.0",
-            "scriptUrl": "https://raw.githubusercontent.com/trisdo/Repo-VAX/refs/heads/main/vsmov_plugin.js",
+            "scriptUrl": "https://raw.githubusercontent.com/trisdo/repo/refs/heads/main/vsmov_plugin.js",
             "iconUrl": "https://vsmov.com/VSmov.png"
         },
       {
             "id": "bilutv",
             "tên": "Nguồn Bilutv",
             "phiên bản": "1.5.1",
-            "scriptUrl": "https://raw.githubusercontent.com/trisdo/Repo-VAX/refs/heads/main/bilutv_plugin.js",
+            "scriptUrl": "https://raw.githubusercontent.com/trisdo/repo/refs/heads/main/bilutv_plugin.js",
             "iconUrl": "https://bilutv.asia/img/bilutvlogo-ngang.jpg"
         },
  ]
